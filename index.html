@@ -1,22 +1,217 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>My First Telegram Mini App</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            background-color: #e9e9e9;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: left;
+        }
+
+        .option:hover {
+            background-color: #d4d4d4;
+        }
+
+        .option.correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .option.incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #next-btn, #restart-btn {
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Hello from Telegram Mini App 🎉</h1>
-<p>This is my first Telegram Mini App created with GitHub Pages.</p>
+    <div class="container">
+        <h1>Islamic Quiz</h1>
+        <div id="quiz">
+            <div class="question-container">
+                <p id="question"></p>
+                <div id="options" class="options-container"></div>
+            </div>
+            <p id="result"></p>
+            <button id="next-btn">Next Question</button>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
 
-<button onclick="Telegram.WebApp.close()">Close App</button>
+    <script>
+        const quizData = [
+            {
+                question: "What is the name of the Holy Book revealed to Prophet Muhammad (PBUH)?",
+                options: ["Injil", "Torah", "Quran"],
+                answer: "Quran"
+            },
+            {
+                question: "How many pillars (Rukn) are there in Islam?",
+                options: ["Four", "Five", "Six"],
+                answer: "Five"
+            },
+            {
+                question: "Which Pillar of Islam requires Muslims to pray five times a day?",
+                options: ["Sawm (Fasting)", "Salat (Prayer)", "Zakat (Almsgiving)"],
+                answer: "Salat (Prayer)"
+            },
+            {
+                question: "In which month do Muslims fast from dawn to sunset?",
+                options: ["Shawwal", "Rajab", "Ramadan"],
+                answer: "Ramadan"
+            },
+            {
+                question: "What is the annual pilgrimage to Mecca called?",
+                options: ["Umrah", "Hajj", "Ziyarat"],
+                answer: "Hajj"
+            },
+            {
+                question: "What was the name of the first wife of Prophet Muhammad (PBUH)?",
+                options: ["Aisha (RA)", "Khadijah (RA)", "Hafsa (RA)"],
+                answer: "Khadijah (RA)"
+            },
+            {
+                question: "Which angel brought revelations from God to the prophets?",
+                options: ["Angel Mikael (Michael)", "Angel Jibril (Gabriel)", "Angel Israfil"],
+                answer: "Angel Jibril (Gabriel)"
+            },
+            {
+                question: "What is the Arabic word for the concept of predestination or divine decree in Islam?",
+                options: ["Qiyamah", "Qadar", "Qiblah"],
+                answer: "Qadar"
+            },
+            {
+                question: "Which city is known as the first 'Qibla' (direction of prayer) for Muslims?",
+                options: ["Mecca", "Medina", "Jerusalem"],
+                answer: "Jerusalem"
+            }
+        ];
 
-<script>
-    let tg = window.Telegram.WebApp;
-    tg.expand(); // অ্যাপটিকে ফুল স্ক্রিনে দেখাবে
-    document.body.innerHTML += `<p>User: ${tg.initDataUnsafe?.user?.first_name || "Guest"}</p>`;
-</script>
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const resultEl = document.getElementById('result');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        let currentQuestionIndex = 0;
+
+        function showQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionEl.textContent = currentQuestion.question;
+            optionsEl.innerHTML = '';
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option');
+                button.addEventListener('click', () => checkAnswer(option, currentQuestion.answer));
+                optionsEl.appendChild(button);
+            });
+            resultEl.textContent = '';
+            nextBtn.style.display = 'none';
+        }
+
+        function checkAnswer(selectedOption, correctAnswer) {
+            const allOptions = document.querySelectorAll('.option');
+            let isCorrect = false;
+            allOptions.forEach(button => {
+                if (button.textContent === correctAnswer) {
+                    button.classList.add('correct');
+                    if (selectedOption === correctAnswer) {
+                        resultEl.textContent = "Your answer is correct!";
+                        isCorrect = true;
+                    }
+                } else if (button.textContent === selectedOption) {
+                    button.classList.add('incorrect');
+                    resultEl.textContent = "Your answer is incorrect. Try again!";
+                }
+                button.disabled = true;
+            });
+            if (isCorrect) {
+                 nextBtn.style.display = 'block';
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                resultEl.textContent = "Quiz finished!";
+                nextBtn.style.display = 'none';
+                restartBtn.style.display = 'block';
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            showQuestion();
+            restartBtn.style.display = 'none';
+        });
+
+        showQuestion();
+    </script>
 
 </body>
 </html>
